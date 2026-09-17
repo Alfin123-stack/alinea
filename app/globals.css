@@ -1,0 +1,267 @@
+@import "tailwindcss";
+
+/* ==========================================================================
+   Alinea — design tokens (adapted from the "Cosmos" style reference)
+   ========================================================================== */
+:root {
+  /* Light — warm paper stock */
+  --color-linen: #f7f5f3;
+  --color-ink: #0d0d0d;
+  --color-paper: #ffffff;
+  --color-stone: #6e6a69;
+  --color-pebble: #9a9796;
+  color-scheme: light;
+}
+
+/*
+ * Dark — the same monochrome system with its polarity flipped.
+ * "ink" stays the foreground and "paper"/"linen" stay the surfaces, so every
+ * component keeps working untouched; only the values swap. Kept slightly warm
+ * (not pure #000/#fff) so book covers remain the only real colour on screen.
+ */
+[data-theme="dark"] {
+  --color-linen: #121110;
+  --color-ink: #f4f2f0;
+  --color-paper: #1c1a19;
+  --color-stone: #a29d9a;
+  --color-pebble: #767170;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-linen: var(--color-linen);
+  --color-ink: var(--color-ink);
+  --color-paper: var(--color-paper);
+  --color-stone: var(--color-stone);
+  --color-pebble: var(--color-pebble);
+
+  --font-serif: "Newsreader Variable", Georgia, serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/*
+ * Theme transition — runs on every element so switching light/dark fades
+ * colors instead of snapping. Scoped to color-ish properties only, so it
+ * never fights layout/transform transitions components define themselves
+ * (those use more specific classes, which win regardless).
+ */
+*,
+*::before,
+*::after {
+  transition-property: background-color, border-color, color, fill, stroke,
+    box-shadow;
+  transition-duration: 400ms;
+  transition-timing-function: ease;
+}
+
+body {
+  background: var(--color-linen);
+  color: var(--color-ink);
+  font-family: "Newsreader Variable", Georgia, serif;
+  font-optical-sizing: auto;
+}
+
+::selection {
+  background: var(--color-ink);
+  color: var(--color-linen);
+}
+
+/*
+ * Focus visibility (accessibility floor). Lives in @layer base on purpose:
+ * Tailwind utilities (e.g. `focus-visible:outline-none`) sit in later layers,
+ * so any component that supplies its own focus treatment (a border-color
+ * change, an inset ring sized to its own radius) can cleanly opt out of this
+ * default instead of stacking a second, larger box on top of it — which is
+ * what made wide/pill-shaped controls (search bars, the command palette
+ * input) look like they had an oversized focus outline.
+ */
+@layer base {
+  :focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 2px;
+  }
+}
+
+/* ==========================================================================
+   Type scale helpers — matches the Cosmos token spec exactly
+   (display-xl 74/0.80/-3.7px, display 58/1.06/-2.32px, etc.)
+   ========================================================================== */
+/*
+ * Font sizes below use clamp() to scale continuously between a 375px and a
+ * 768px viewport (the utopia.fyi fluid-type formula: clamp(min, intercept +
+ * slope*100vw, max)) instead of jumping at the md breakpoint. Below 375px
+ * they hold at the min size; above 768px, at the max — matching the original
+ * two-step values exactly at both ends, just interpolated in between so
+ * headings don't visibly "snap" while resizing or on in-between tablet
+ * widths. line-height/letter-spacing still switch at 768px: they're subtler
+ * and don't produce the same layout-jump artifact font-size does.
+ */
+@layer components {
+  /* Weights bumped from 350 -> 400 and negative letter-spacing loosened for
+     Newsreader (was tuned for Fraunces' narrower, "wonkier" letterforms —
+     Newsreader is a more traditional book serif with wider proportions, so
+     the old values read as too thin / too cramped at display sizes). */
+  .type-display-xl {
+    font-size: clamp(2.75rem, 0.961rem + 7.634vw, 4.625rem);
+    line-height: 0.96;
+    letter-spacing: -0.015em;
+    font-weight: 400;
+  }
+  @media (min-width: 768px) {
+    .type-display-xl {
+      line-height: 0.86;
+      letter-spacing: -0.025em;
+    }
+  }
+
+  .type-display {
+    font-size: clamp(2.125rem, 0.694rem + 6.107vw, 3.625rem);
+    line-height: 1.08;
+    letter-spacing: -0.01em;
+    font-weight: 400;
+  }
+  @media (min-width: 768px) {
+    .type-display {
+      line-height: 1.1;
+      letter-spacing: -0.012em;
+    }
+  }
+
+  .type-heading-lg {
+    font-size: clamp(1.75rem, 1.154rem + 2.545vw, 2.375rem);
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    font-weight: 400;
+  }
+  @media (min-width: 768px) {
+    .type-heading-lg {
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+    }
+  }
+
+  .type-heading {
+    font-size: clamp(1.5rem, 0.963rem + 2.29vw, 2.0625rem);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    font-weight: 400;
+  }
+  @media (min-width: 768px) {
+    .type-heading {
+      line-height: 1.1;
+      letter-spacing: -0.04em;
+    }
+  }
+
+  .type-heading-sm {
+    font-size: clamp(1.25rem, 1.011rem + 1.018vw, 1.5rem);
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    font-weight: 400;
+  }
+  @media (min-width: 768px) {
+    .type-heading-sm {
+      letter-spacing: -0.02em;
+    }
+  }
+
+  .type-subheading {
+    font-size: 18px;
+    line-height: 1.29;
+    letter-spacing: -0.011em;
+    font-weight: 400;
+  }
+
+  .type-body {
+    font-size: 16px;
+    line-height: 1.5;
+    letter-spacing: -0.011em;
+    font-weight: 400;
+  }
+
+  .type-caption {
+    font-size: 14px;
+    line-height: 1.5;
+    font-weight: 400;
+  }
+
+  .eyebrow {
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+  }
+}
+
+/*
+ * Inset focus ring for pill/rounded controls (search inputs, the command
+ * palette). Sized to the element's own border-radius via box-shadow instead
+ * of `outline` + `outline-offset`, which draws outside the box and reads as
+ * an oversized rectangle on wide, low-height controls. Pair with
+ * `focus-visible:outline-none` on the element.
+ */
+@layer utilities {
+  .focus-ring-inset:focus-visible {
+    box-shadow: inset 0 0 0 2px var(--color-ink);
+  }
+}
+
+/* Line clamp utility (synopsis previews) */
+@layer utilities {
+  .clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+/* ==========================================================================
+   Infinite marquee (trust row) — plain CSS keyframes so the loop runs on
+   the compositor thread with zero JS cost. Track is duplicated in markup
+   and travels exactly -50% so the seam between loops is invisible.
+   ========================================================================== */
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+@keyframes marquee-reverse {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+@layer utilities {
+  .animate-marquee {
+    animation: marquee 26s linear infinite;
+  }
+  .animate-marquee-reverse {
+    animation: marquee-reverse 26s linear infinite;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
